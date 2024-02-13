@@ -7,7 +7,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        .initiallyHidden { display: none; }
+        #question_locked { max-height: 75vh; }
+        video { max-height: 90vh; }
+        #locked header {
+            display: flex;            /* Enable flexbox layout */
+            justify-content: center;  /* Center content by default */
+            align-items: center;      /* Align items vertically */
+            text-align: center;       /* Ensure text is centered */
+            position: relative;       /* Positioning context for absolute positioning */
+        }
+        #locked header button {
+            position: absolute;       /* Position the button absolutely within the header */
+            right: 0;                 /* Align it to the right */
+            top: 50%;                 /* Align it to the top, then adjust with transform for centering */
+            transform: translateY(-50%); /* Center the button vertically */
+        }
     </style>
 </head>
 <body>
@@ -20,17 +34,29 @@
     </p>
     <p><strong>Om door te kunnen gaan is je locatie nodig.</strong></p>
     <p><button onclick="getLocation()">Check mijn locatie</button></p>
-    <img id="question_locked" src="unlock.jpg" class="initiallyHidden">
-    <section id="question_open" class="initiallyHidden">
+    <dialog id="locked">
+        <header>Nog niet...<button onclick="closeDialog('locked')">×</button></header>
+        <img id="question_locked" src="unlock.jpg">
+    </dialog>
+    <dialog id="open">
+        <header>Yes! Question unlocked</header>
         Stel er is een Fransman en die eet alleen Franse kazen
         En zij eet van elke franse kaas die er gemaakt wordt
         Van elke kaas eet ze precies evenveel in een jaar
         Hoeveel KG eet zij dan gemiddeld per kaassoort per jaar (afgerond)?
         LET OP – NIET GOKKEN!
-        A. 14 KG
-        B. 14 gram
-        C. 2 gram
-    </section>
+        <div>
+            <button id="answer_a" onclick="answer('a')">14 KG</button>
+            <button id="answer_b" onclick="answer('b')">14 gram</button>
+            <button id="answer_c" onclick="answer('c')">2 gram</button>
+        </div>
+    </dialog>
+    <dialog id="answer_video">
+        <video controls>
+            <source src="output.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+    </dialog>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         var centerFrance = { lat: 46.709735, lng: 1.719103 };
@@ -78,11 +104,9 @@
             var isWithinFrance = isInsideCircle({lat: position.coords.latitude, lng: position.coords.longitude}, centerFrance, radius);
 
             if (isWithinFrance) {
-                var el = document.getElementById('question_open');
-                el.style.display = 'block';
+                document.getElementById('open').showModal();
             } else {
-                var el = document.getElementById('question_locked');
-                el.style.display = 'block';
+                document.getElementById('locked').showModal();
             }
         }
 
@@ -100,6 +124,21 @@
                 case error.UNKNOWN_ERROR:
                     alert("An unknown error occurred.");
                     break;
+            }
+        }
+
+        function closeDialog(id) {
+            var dialog = document.getElementById(id);
+            dialog.close();
+        }
+
+        function answer(value) {
+            var dialog = document.getElementById('open');
+            dialog.close();
+
+            if(value === 'b') {
+                var video = document.getElementById('answer_video');
+                video.showModal();
             }
         }
     </script>
