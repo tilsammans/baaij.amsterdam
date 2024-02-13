@@ -45,7 +45,10 @@ function showPosition(position) {
 
     var isWithinFrance = isInsideCircle({lat: position.coords.latitude, lng: position.coords.longitude}, centerFrance, radius);
 
-    if (isWithinFrance) {
+    const queryParams = new URLSearchParams(window.location.search);
+    const preview = queryParams.get('preview') === 'true';
+
+    if (preview || isWithinFrance) {
         document.getElementById('open').showModal();
     } else {
         document.getElementById('locked').showModal();
